@@ -19,13 +19,13 @@ distance_to_balance_motor = 150;
 distance_to_arm_motor1 = distance_between_wheels / 2 - 50; 
 distance_between_arm_motors = 100; 
 
-arm_bone_thick = 20;
+arm_bone_thick_radius = 20;
 arm_bone_depth = 50;
 arm_length = 400;
 
 arm_angle_between_arms = 70;
 arm_angle2 = 80;
-balance_weight_angle = 130;
+balance_weight_angle = 50;
 
 //-------------------------------------------------------------------
 module motor_hub()
@@ -57,19 +57,19 @@ module balance_motor()
     // weighted arm
      rotate([0, 0, balance_weight_angle]){
         rotate([-90, 0, 0]){
-                cylinder(h = balance_weight_arm_length, r = arm_bone_thick);
+                cylinder(h = balance_weight_arm_length, r = arm_bone_thick_radius);
                 translate ([0, 0, balance_weight_arm_length])
-                cylinder (r = 50, h= 50);
+                cylinder (r = 80, h= 50);
         }
     }
 }
 //-------------------------------------------------------------------
-module ddr_arm()
+module DiDiR2_arm()
 {
-    // arm motor 1
+    // arm' motor 1
     motor_hub();
             
-    // arm motor 2   
+    // arm' motor 2   
     translate([0, 0, distance_between_arm_motors])
             motor_hub()
             ;
@@ -77,34 +77,41 @@ module ddr_arm()
             // arm1
      translate([0, 0, wheel_motor_thick / 2]){
         rotate([-90, 0, 0])
-            cylinder(h = arm_length, r = arm_bone_thick)
+            cylinder(h = arm_length, r = arm_bone_thick_radius)
             ;
-// 2nd segment
-            translate([0, arm_length, 0])
+// arm1, 2nd segment
+        translate([0, arm_length, 0])
             rotate([0, 0, arm_angle_between_arms])
-        rotate([-90, 0, 0])
-                cylinder(h = arm_length, r = arm_bone_thick)
-                ;
-       }
+                rotate([-90, 0, 0])
+                    cylinder(h = arm_length, r = arm_bone_thick_radius)
+                    ;
+        // wrist
+        translate([0, arm_length, -arm_bone_thick_radius])
+            color("gray") cylinder(h = 40, r = 30);
+    }
      
-     // arm2
+// arm2
+     
      translate([0, 0, distance_between_arm_motors - wheel_motor_thick / 2]){
         rotate([0, 0, arm_angle_between_arms]){
             rotate([-90, 0, 0])
-                translate([0, 0, arm_bone_thick])
-                    cylinder(h = arm_length, r = arm_bone_thick);
+                translate([0, 0, arm_bone_thick_radius])
+                    cylinder(h = arm_length, r = arm_bone_thick_radius);
          }
-// 2nd segment
+// arm2, 2nd segment
 
           translate([-arm_length * sin(arm_angle_between_arms), arm_length * cos(arm_angle_between_arms), 0])
             rotate([-90, 0, 0])
-                translate([0, 0, arm_bone_thick])
-                  cylinder(h = arm_length, r = arm_bone_thick);
+                translate([0, 0, arm_bone_thick_radius])
+                  cylinder(h = arm_length, r = arm_bone_thick_radius);
+                  
+          translate([-arm_length * sin(arm_angle_between_arms), arm_length * cos(arm_angle_between_arms), -arm_bone_thick_radius])
+            color("gray") cylinder(h = 40, r = 30);
      }
-     // connection in the front
-     translate([0, arm_length, 0])
-     translate([-arm_length * sin(arm_angle_between_arms), arm_length * cos(arm_angle_between_arms), 0])
-     cylinder(h = 100, r = 40);
+     //  final wrist in the front
+     translate([0, arm_length, wheel_motor_thick / 2-arm_bone_thick_radius])
+        translate([-arm_length * sin(arm_angle_between_arms), arm_length * cos(arm_angle_between_arms), 0])
+     color("gray") cylinder(h = 80, r = 30);
 }
 //-------------------------------------------------------------------
 module DiDiR2()
@@ -129,11 +136,12 @@ module DiDiR2()
     translate([0, distance_to_arm_motor1, 0])
             rotate([-90, 0, 0])
             rotate([0, 0, arm_angle2])
-                ddr_arm()
+                DiDiR2_arm()
                 ;
 }
 //----------------------------------------------------------------
 DiDiR2();
 
-//ddr_arm();
+//DiDiR2_arm();
+
 //balance_motor();
